@@ -1,12 +1,11 @@
 package com.example.question.bank.repository;
 
-import com.example.question.bank.domain.Question;
+import com.example.question.bank.domain.user.User;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface QuestionRepository extends ReactiveMongoRepository<Question, Integer> {
-    Mono<Long> count();
-    Mono<Question> findByQuestionId(Long questionId);
+public interface UserRepository extends ReactiveMongoRepository<User, String> {
+    Mono<User> findByEmail(String email);
 }
