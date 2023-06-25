@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+
 @RestController
 public class QuestionsController {
 
@@ -28,7 +30,22 @@ public class QuestionsController {
     }
 
     @PatchMapping("/update/question/{questionId}")
-    public Mono<Question> updateQuestion(@RequestBody Question question, @PathVariable Long questionId) {
+    public Mono<Question> updateQuestion(@RequestBody Question question, @PathVariable int questionId) {
         return questionService.updateQuestion(question, questionId);
+    }
+
+    @DeleteMapping("/delete/question/{questionId}")
+    public Mono<Void> deleteQuestion(@PathVariable int questionId) {
+        return questionService.deleteQuestion(questionId);
+    }
+
+    @GetMapping("/all/questions")
+    public Mono<List<Question>> getAllQuestions() {
+        return questionService.getAllQuestions();
+    }
+
+    @GetMapping("/question/{questionId}")
+    public Mono<Question> getQuestion(@PathVariable int questionId) {
+        return questionService.getQuestion(questionId);
     }
 }

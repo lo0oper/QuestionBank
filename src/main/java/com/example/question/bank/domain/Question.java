@@ -1,5 +1,6 @@
 package com.example.question.bank.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -13,11 +14,12 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Document(collection = "questions")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class Question {
 
     @Id
     @Field("_id")
-    private Long questionId;
+    private int questionId;
     private String userId;
     private String question;
     private String lastModifiedDate;
@@ -26,7 +28,11 @@ public class Question {
     @Builder.Default
     private List<String> answers = new ArrayList<>();
     @Builder.Default
+    private int answersCount = 0;
+    @Builder.Default
     private List<String> comments = new ArrayList<>();
+    @Builder.Default
+    private int commentsCount = 0;
     @Builder.Default
     private int views = 0;
     @Builder.Default
