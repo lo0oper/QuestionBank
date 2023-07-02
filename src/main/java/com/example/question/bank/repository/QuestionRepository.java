@@ -8,9 +8,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Repository
-public interface QuestionRepository extends ReactiveMongoRepository<Question, Integer> {
-    Mono<Long> count();
-
+public interface QuestionRepository extends ReactiveMongoRepository<Question, String> {
     @Query(value = "{}", fields = "{ 'tags': 0, 'answers': 0 }")
     Flux<Question> findQuestions();
 

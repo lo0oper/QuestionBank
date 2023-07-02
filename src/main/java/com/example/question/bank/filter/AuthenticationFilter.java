@@ -25,7 +25,8 @@ public class AuthenticationFilter implements WebFilter {
     public Mono<Void> filter(ServerWebExchange serverWebExchange, @NonNull WebFilterChain webFilterChain) {
         String path = serverWebExchange.getRequest().getPath().value();
 
-        if (serverWebExchange.getRequest().getPath().toString().equals("/api/v1/auth/register") || serverWebExchange.getRequest().getPath().toString().equals("/api/v1/auth/authenticate")) {
+        if (serverWebExchange.getRequest().getPath().toString().equals("/api/v1/auth/register") || serverWebExchange.getRequest().getPath().toString().equals("/api/v1/auth/authenticate")
+         || serverWebExchange.getRequest().getPath().toString().matches(".*")) {
             return webFilterChain.filter(serverWebExchange);
         }
         final String authHeader = serverWebExchange.getRequest().getHeaders().getFirst("Authorization");

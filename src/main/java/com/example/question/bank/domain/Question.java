@@ -1,5 +1,6 @@
 package com.example.question.bank.domain;
 
+import com.example.question.bank.domain.user.User;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -19,9 +20,10 @@ public class Question {
 
     @Id
     @Field("_id")
-    private int questionId;
+    private String questionId;
     private String userId;
-    private String question;
+    private String questionTitle;
+    private String questionDescription;
     private String lastModifiedDate;
     @Builder.Default
     private List<String> tags = new ArrayList<>();
@@ -30,15 +32,10 @@ public class Question {
     @Builder.Default
     private int answersCount = 0;
     @Builder.Default
-    private List<String> comments = new ArrayList<>();
-    @Builder.Default
-    private int commentsCount = 0;
-    @Builder.Default
     private int views = 0;
     @Builder.Default
     private int upvotes = 0;
     @Builder.Default
     private int downvotes = 0;
-
-
+    private String userName;
 }

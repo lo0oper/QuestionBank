@@ -10,6 +10,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+@CrossOrigin("*")
 @RestController
 public class QuestionsController {
 
@@ -29,13 +30,13 @@ public class QuestionsController {
         return questionService.addQuestion(question);
     }
 
-    @PatchMapping("/update/question/{questionId}")
-    public Mono<Question> updateQuestion(@RequestBody Question question, @PathVariable int questionId) {
-        return questionService.updateQuestion(question, questionId);
+    @PatchMapping("/update/question")
+    public Mono<Question> updateQuestion(@RequestBody Question question) {
+        return questionService.updateQuestion(question);
     }
 
     @DeleteMapping("/delete/question/{questionId}")
-    public Mono<Void> deleteQuestion(@PathVariable int questionId) {
+    public Mono<Void> deleteQuestion(@PathVariable String questionId) {
         return questionService.deleteQuestion(questionId);
     }
 
@@ -45,7 +46,7 @@ public class QuestionsController {
     }
 
     @GetMapping("/question/{questionId}")
-    public Mono<Question> getQuestion(@PathVariable int questionId) {
+    public Mono<Question> getQuestion(@PathVariable String questionId) {
         return questionService.getQuestion(questionId);
     }
 }
