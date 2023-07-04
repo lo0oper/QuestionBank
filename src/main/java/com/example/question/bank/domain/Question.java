@@ -28,7 +28,7 @@ public class Question {
     @Builder.Default
     private List<String> tags = new ArrayList<>();
     @Builder.Default
-    private List<String> answers = new ArrayList<>();
+    private List<Answer> answers = new ArrayList<>();
     @Builder.Default
     private int answersCount = 0;
     @Builder.Default

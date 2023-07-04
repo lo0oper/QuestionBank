@@ -6,14 +6,18 @@ import com.example.question.bank.repository.UserRepository;
 import com.example.question.bank.service.JwtService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
-@Component
+@Configuration
 @RequiredArgsConstructor
 
 public class AuthenticationFilter implements WebFilter {
@@ -23,10 +27,8 @@ public class AuthenticationFilter implements WebFilter {
 
     @Override
     public Mono<Void> filter(ServerWebExchange serverWebExchange, @NonNull WebFilterChain webFilterChain) {
-        String path = serverWebExchange.getRequest().getPath().value();
-
         if (serverWebExchange.getRequest().getPath().toString().equals("/api/v1/auth/register") || serverWebExchange.getRequest().getPath().toString().equals("/api/v1/auth/authenticate")
-         || serverWebExchange.getRequest().getPath().toString().matches(".*")) {
+                || isPreflightRequest(serverWebExchange.getRequest())) {
             return webFilterChain.filter(serverWebExchange);
         }
         final String authHeader = serverWebExchange.getRequest().getHeaders().getFirst("Authorization");
@@ -56,5 +58,9 @@ public class AuthenticationFilter implements WebFilter {
         return userRepository.findByEmail(userEmail)
                 .switchIfEmpty(Mono.just(User.builder().build()))
                 .flatMap(user -> Mono.just(jwtService.isTokenValid(jwt, user)));
+    }
+
+    private boolean isPreflightRequest(ServerHttpRequest request) {
+        return "OPTIONS".equals(request.getMethod().toString()) && request.getHeaders().get("Access-Control-Request-Method") != null;
     }
 }
