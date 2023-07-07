@@ -1,5 +1,6 @@
 package com.example.question.bank.controller;
 
+import com.example.question.bank.domain.ExpiredToken;
 import com.example.question.bank.domain.authentication.AuthenticationRequest;
 import com.example.question.bank.domain.authentication.AuthenticationResponse;
 import com.example.question.bank.domain.authentication.RegisterRequest;
@@ -27,6 +28,11 @@ public class AuthenticationController {
     @PostMapping("/authenticate")
     public Mono<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return authenticationService.authenticate(request);
+    }
+
+    @PostMapping("/logout")
+    public Mono<Void> logout(@RequestBody ExpiredToken expiredToken) {
+        return authenticationService.logout(expiredToken);
     }
 
     @GetMapping("/users/all")

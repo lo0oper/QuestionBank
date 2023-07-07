@@ -1,12 +1,18 @@
 package com.example.question.bank.service;
 
+import com.example.question.bank.domain.ExpiredToken;
 import com.example.question.bank.domain.user.User;
+import com.example.question.bank.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Mono;
 
 import java.security.Key;
 import java.util.Date;
@@ -15,7 +21,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Service
+@RequiredArgsConstructor
 public class JwtService {
+    private final TokenRepository tokenRepository;
+    private AuthenticationService authenticationService;
 
     private String secretKey = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
     private long jwtExpiration = 86400000; // 1 day
@@ -82,5 +91,10 @@ public class JwtService {
     private Key getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+    @Scheduled(fixedRate = 86400)
+    public Mono<Void> clearExpiredToken() {
+        tokenRepository.deleteAll().subscribe();
+        return Mono.empty();
     }
 }
