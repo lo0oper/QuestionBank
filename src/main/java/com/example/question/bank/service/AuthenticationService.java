@@ -43,7 +43,7 @@ public class AuthenticationService {
         return Mono.just(user)
                 .flatMap(user1 -> userRepository.save(user))
                 .map(jwtService::generateToken)
-                .map(jwtToken -> AuthenticationResponse.builder().token(jwtToken).build())
+                .map(jwtToken -> AuthenticationResponse.builder().token(jwtToken).userId(user.getUserId()).build())
                 .onErrorResume(error -> {
                     if (error.toString().contains("11000")) {
                         return Mono.error(new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists"));
@@ -64,8 +64,7 @@ public class AuthenticationService {
                     }
                     return Mono.just(user);
                 })
-                .map(jwtService::generateToken)
-                .map(jwtToken -> AuthenticationResponse.builder().token(jwtToken).build());
+                .map(user -> AuthenticationResponse.builder().token(jwtService.generateToken(user)).userId(user.getUserId()).build());
     }
 
     public Mono<List<User>> getAllUsers() {

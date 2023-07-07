@@ -6,8 +6,11 @@ import com.example.question.bank.domain.Question;
 import com.example.question.bank.domain.user.User;
 import com.example.question.bank.repository.QuestionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
@@ -104,6 +107,7 @@ public class QuestionsService {
 
     public Mono<Void> deleteAnswer(String answerId, String questionId) {
         return questionRepository.findById(questionId)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "We went into some errors.")))
                 .flatMap(existingQuestion -> {
                     List<Answer> updatedAnswerList = existingQuestion.getAnswers().stream()
                                     .filter(ans -> !ans.getAnswerId().equalsIgnoreCase(answerId))

@@ -14,8 +14,8 @@ public class AnswerController {
     private QuestionsService questionService;
 
     @PostMapping("/add/answer")
-    public Mono<Answer> addAnswer(@RequestBody Answer answer, @RequestParam String questionId) {
-        return questionService.addAnswer(answer, questionId);
+    public Mono<Answer> addAnswer(@RequestBody Answer answer) {
+        return questionService.addAnswer(answer, answer.getQuestionId());
     }
 
     @PatchMapping("/update/answer")
@@ -24,7 +24,7 @@ public class AnswerController {
     }
 
     @DeleteMapping("/delete/answer")
-    public Mono<Void> deleteQuestion(@RequestParam String answerId, @RequestParam String questionId) {
-        return questionService.deleteAnswer(answerId, questionId);
+    public Mono<Void> deleteQuestion(@RequestBody Answer answer) {
+        return questionService.deleteAnswer(answer.getAnswerId(), answer.getQuestionId());
     }
 }

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Answer {
+    private String questionId;
     private String answerId;
     private String userId;
     private String answer;
