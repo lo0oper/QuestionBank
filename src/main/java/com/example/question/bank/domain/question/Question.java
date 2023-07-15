@@ -1,6 +1,6 @@
-package com.example.question.bank.domain;
+package com.example.question.bank.domain.question;
 
-import com.example.question.bank.domain.user.User;
+import com.example.question.bank.domain.Answer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -38,4 +38,9 @@ public class Question {
     @Builder.Default
     private int downvotes = 0;
     private String userName;
+
+    @Builder.Default
+    private List<String> upvotedUsers = new ArrayList<>();
+    @Builder.Default
+    private List<String> downvotedUsers = new ArrayList<>();
 }

@@ -1,7 +1,7 @@
 package com.example.question.bank.controller;
 
 import com.example.question.bank.domain.Answer;
-import com.example.question.bank.domain.Question;
+import com.example.question.bank.domain.AnswerRequest;
 import com.example.question.bank.service.QuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,8 +14,8 @@ public class AnswerController {
     private QuestionsService questionService;
 
     @PostMapping("/add/answer")
-    public Mono<Answer> addAnswer(@RequestBody Answer answer) {
-        return questionService.addAnswer(answer, answer.getQuestionId());
+    public Mono<Answer> addAnswer(@RequestBody AnswerRequest answerRequest) {
+        return questionService.addAnswer(answerRequest);
     }
 
     @PatchMapping("/update/answer")

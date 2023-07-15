@@ -1,13 +1,20 @@
 package com.example.question.bank.controller;
 
+import com.example.question.bank.connector.ChatGptConnector;
 import com.example.question.bank.constants.ApplicationConstants;
-import com.example.question.bank.domain.Question;
+import com.example.question.bank.domain.chatgpt.ChatGptRequest;
+import com.example.question.bank.domain.chatgpt.ChatGptResponse;
+import com.example.question.bank.domain.chatgpt.Message;
+import com.example.question.bank.domain.question.Question;
+import com.example.question.bank.domain.question.QuestionRequest;
 import com.example.question.bank.domain.user.User;
+import com.example.question.bank.repository.QuestionRepository;
 import com.example.question.bank.service.QuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
 import java.util.List;
 
 @CrossOrigin("*")
@@ -16,6 +23,11 @@ public class QuestionsController {
 
     @Autowired
     private QuestionsService questionService;
+    @Autowired
+    private QuestionRepository questionRepository;
+
+    @Autowired
+    private ChatGptConnector chatGptConnector;
 
     @GetMapping("/test")
     private <T> Mono<Object> hello() {
@@ -26,13 +38,13 @@ public class QuestionsController {
     }
 
     @PostMapping("/add/question")
-    public Mono<Question> addQuestion(@RequestBody Question question) {
-        return questionService.addQuestion(question);
+    public Mono<Question> addQuestion(@RequestBody QuestionRequest questionRequest) {
+        return questionService.addQuestion(questionRequest);
     }
 
     @PatchMapping("/update/question")
-    public Mono<Question> updateQuestion(@RequestBody Question question) {
-        return questionService.updateQuestion(question);
+    public Mono<Question> updateQuestion(@RequestBody QuestionRequest questionRequest) {
+        return questionService.updateQuestion(questionRequest);
     }
 
     @DeleteMapping("/delete/question/{questionId}")
@@ -40,13 +52,20 @@ public class QuestionsController {
         return questionService.deleteQuestion(questionId);
     }
 
-    @GetMapping("/all/questions")
-    public Mono<List<Question>> getAllQuestions() {
-        return questionService.getAllQuestions();
+    @PostMapping("/all/questions")
+    public Mono<List<Question>> getAllQuestions(@RequestBody QuestionRequest questionRequest) {
+        return questionService.getAllQuestions(questionRequest);
     }
 
     @GetMapping("/question/{questionId}")
     public Mono<Question> getQuestion(@PathVariable String questionId) {
         return questionService.getQuestion(questionId);
     }
+
+    @PostMapping("/joshi")
+    public Mono<ChatGptResponse> joshi () {
+        ChatGptRequest chatGptRequest = ChatGptRequest.builder().messages(Arrays.asList(Message.builder().content("Say Hello").build())).build();
+        return chatGptConnector.fetchChatGptResponse(chatGptRequest);
+    }
+
 }

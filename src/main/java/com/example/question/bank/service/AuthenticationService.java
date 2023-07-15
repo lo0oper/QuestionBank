@@ -31,8 +31,9 @@ public class AuthenticationService {
     private final TokenRepository tokenRepository;
 
     public Mono<AuthenticationResponse> register(RegisterRequest request) {
+        String id = String.valueOf(UUID.randomUUID());
         User user = User.builder()
-                .userId(UUID.randomUUID().toString())
+                .userId(id)
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
