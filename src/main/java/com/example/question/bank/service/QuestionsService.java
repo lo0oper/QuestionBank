@@ -5,7 +5,6 @@ import com.example.question.bank.constants.ApplicationConstants;
 import com.example.question.bank.domain.Answer;
 import com.example.question.bank.domain.AnswerRequest;
 import com.example.question.bank.domain.chatgpt.ChatGptRequest;
-import com.example.question.bank.domain.chatgpt.ChatGptResponse;
 import com.example.question.bank.domain.chatgpt.Message;
 import com.example.question.bank.domain.question.Question;
 import com.example.question.bank.domain.question.QuestionRequest;
@@ -13,17 +12,16 @@ import com.example.question.bank.domain.user.User;
 import com.example.question.bank.helper.QuestionBankHelper;
 import com.example.question.bank.repository.QuestionRepository;
 import com.example.question.bank.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
-import reactor.util.function.Tuple2;
+import reactor.core.scheduler.Scheduler;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -51,19 +49,31 @@ public class QuestionsService {
     }
 
     public Mono<Question> addQuestion(QuestionRequest questionRequest) {
-        ChatGptRequest chatGptRequest = ChatGptRequest.builder().messages(Collections.singletonList(Message.builder().content(questionRequest.getQuestionDescription()).build())).build();
+
         return getUser()
                 .flatMap(user -> saveQuestion(user, questionRequest))
-                .flatMap(question -> chatGptConnector.fetchChatGptResponse(chatGptRequest)
+                .flatMap(question -> {
+                    saveChatGptAnswer(question.getQuestionId(), question.getQuestionDescription());
+                    return Mono.just(question);
+                });
+
+    }
+
+    private void saveChatGptAnswer(String questionId, String questionDescription) {
+        ChatGptRequest chatGptRequest = ChatGptRequest.builder().messages(Collections.singletonList(Message.builder().content(questionDescription).build())).build();
+        Mono.just(chatGptRequest)
+                .publishOn(Schedulers.elastic())
+                .subscribe(request -> chatGptConnector.fetchChatGptResponse(chatGptRequest)
                         .flatMap(chatGptResponse -> {
+
                             AnswerRequest answerRequest = AnswerRequest.builder()
-                                    .questionId(question.getQuestionId())
+                                    .questionId(questionId)
                                     .answer(Optional.ofNullable(chatGptResponse.getChoices()).map(choices -> choices.get(0).getMessage().getContent()).orElse(null))
                                     .isChatGpt(true)
                                     .build();
-                            return saveAnswer(null, answerRequest)
-                                    .then(Mono.just(question));
-                        }));
+                            return saveAnswer(null, answerRequest);
+                        }).subscribe()
+                );
     }
 
     private Mono<Question> saveQuestion(User user, QuestionRequest questionRequest) {

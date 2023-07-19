@@ -17,12 +17,14 @@ public class ChatGptConnector {
     public Mono<ChatGptResponse> fetchChatGptResponse(ChatGptRequest chatGptRequest) {
         return webClientBuilder.build().post()
                 .uri("https://api.openai.com/v1/chat/completions")
-                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer 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"))
+                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer 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"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(chatGptRequest)
                 .retrieve()
                 .bodyToMono(ChatGptResponse.class)
+                .doOnError(error -> System.out.println("error is" + error))
+                .doOnSuccess(e -> System.out.println("success" + e))
                 .switchIfEmpty(Mono.just(ChatGptResponse.builder().build()))
                 .onErrorResume(error -> Mono.just(ChatGptResponse.builder().build()));
     }
