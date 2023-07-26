@@ -17,8 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
@@ -98,7 +98,25 @@ public class QuestionsService {
         return questionRepository.findById(questionRequest.getQuestionId())
                 .flatMap(existingQuestion -> saveQuestionContent(questionRequest, existingQuestion))
                 .flatMap(existingQuestion -> voteQuestion(questionRequest, existingQuestion))
+                .flatMap(existingQuestion -> addRemoveFavourite(questionRequest, existingQuestion))
                 .flatMap(existingQuestion -> questionRepository.save(existingQuestion));
+    }
+
+    private Mono<Question> addRemoveFavourite(QuestionRequest questionRequest, Question existingQuestion) {
+        if (questionRequest.isFavourite()) {
+            String userId = questionRequest.getUserId();
+            String questionId = questionRequest.getQuestionId();
+
+            if (existingQuestion.getFavouriteAddedUsers().contains(userId)) {
+                existingQuestion.getFavouriteAddedUsers().remove(userId);
+            } else {
+                existingQuestion.getFavouriteAddedUsers().add(userId);
+            }
+
+            return questionBankHelper.toggleQuestionIdInUserFavourite(userId, questionId)
+                    .then(Mono.just(existingQuestion));
+        }
+        return Mono.just(existingQuestion);
     }
 
     private Mono<Question> saveQuestionContent(QuestionRequest questionRequest, Question question) {
@@ -141,8 +159,7 @@ public class QuestionsService {
     }
 
     public Mono<List<Question>> getAllQuestions(QuestionRequest questionRequest) {
-        return questionRepository.findQuestions().collectList()
-                .flatMap(list -> questionBankHelper.resolveSearch(list, questionRequest));
+        return questionRepository.findQuestions().collectList();
     }
 
     public Mono<Question> getQuestion(String questionId) {
@@ -213,5 +230,34 @@ public class QuestionsService {
                     return questionRepository.save(existingQuestion)
                             .then(Mono.empty());
                 });
+    }
+
+    public Mono<List<Question>> getAllFilteredQuestions(QuestionRequest questionRequest) {
+        if(questionRequest.getFilters().contains("Favourite questions")){
+            return filterFavouriteQuestion(questionRequest);
+        } else if(questionRequest.getFilters().contains("My questions")) {
+            return filterMyQuestions(questionRequest);
+        } else {
+            return filterUpvotedQuestions(questionRequest);
+        }
+    }
+
+    private Mono<List<Question>> filterMyQuestions(QuestionRequest questionRequest) {
+        return questionRepository.findQuestions()
+                .filter(question -> question.getUserId().equalsIgnoreCase(questionRequest.getUserId()))
+                .collectList();
+    }
+
+    private Mono<List<Question>> filterFavouriteQuestion (QuestionRequest questionRequest) {
+        return userRepository.findById(questionRequest.getUserId())
+                .flatMap(user -> Flux.fromIterable(user.getFavouriteQuestions())
+                        .flatMap(questionId -> questionRepository.findByQuestionId(questionId))
+                        .collectList());
+    }
+
+    private Mono<List<Question>> filterUpvotedQuestions(QuestionRequest questionRequest) {
+        return questionRepository.findQuestions()
+                .filter(question -> question.getUpvotedUsers().contains(questionRequest.getUserId()))
+                .collectList();
     }
 }

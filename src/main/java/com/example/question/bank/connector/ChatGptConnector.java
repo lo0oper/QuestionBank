@@ -17,7 +17,7 @@ public class ChatGptConnector {
     public Mono<ChatGptResponse> fetchChatGptResponse(ChatGptRequest chatGptRequest) {
         return webClientBuilder.build().post()
                 .uri("https://api.openai.com/v1/chat/completions")
-                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer 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"))
+                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer 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"))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(chatGptRequest)

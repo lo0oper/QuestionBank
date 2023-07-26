@@ -29,6 +29,10 @@ public class User {
     private String email;
     private String password;
     private Role role;
+    @Builder.Default
+    private String city = "Bangalore";
+    private String state = "Karnataka";
+    private double medals;
 
     @JsonIgnore
     private boolean isPasswordMatching;
@@ -36,5 +40,8 @@ public class User {
     public String getUsername() {
         return email;
     }
+
+    @Builder.Default
+    private List<String> favouriteQuestions = new ArrayList<>();
 
 }

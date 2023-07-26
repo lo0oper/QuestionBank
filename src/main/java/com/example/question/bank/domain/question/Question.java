@@ -43,4 +43,7 @@ public class Question {
     private List<String> upvotedUsers = new ArrayList<>();
     @Builder.Default
     private List<String> downvotedUsers = new ArrayList<>();
+
+    @Builder.Default
+    private List<String> favouriteAddedUsers = new ArrayList<>();
 }

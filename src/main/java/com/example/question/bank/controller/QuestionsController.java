@@ -57,15 +57,14 @@ public class QuestionsController {
         return questionService.getAllQuestions(questionRequest);
     }
 
+    @PostMapping("/filter/all/questions")
+    public Mono<List<Question>> getAllFilteredQuestions(@RequestBody QuestionRequest questionRequest) {
+        return questionService.getAllFilteredQuestions(questionRequest);
+    }
+
     @GetMapping("/question/{questionId}")
     public Mono<Question> getQuestion(@PathVariable String questionId) {
         return questionService.getQuestion(questionId);
-    }
-
-    @PostMapping("/joshi")
-    public Mono<ChatGptResponse> joshi () {
-        ChatGptRequest chatGptRequest = ChatGptRequest.builder().messages(Arrays.asList(Message.builder().content("Say Hello").build())).build();
-        return chatGptConnector.fetchChatGptResponse(chatGptRequest);
     }
 
 }

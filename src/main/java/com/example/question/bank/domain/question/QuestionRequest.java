@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,4 +19,6 @@ public class QuestionRequest {
     private String questionDescription;
     private String voteType;
     private String searchTerm;
+    private boolean favourite;
+    private List<String> filters;
 }

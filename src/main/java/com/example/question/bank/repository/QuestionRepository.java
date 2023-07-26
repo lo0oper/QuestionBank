@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface QuestionRepository extends ReactiveMongoRepository<Question, String> {
+
+    // TODO: 27/07/23 keep editing this based on homepage requirement
     @Query(value = "{}", fields = "{ 'tags': 0, 'answers': 0 }")
     Flux<Question> findQuestions();
 
