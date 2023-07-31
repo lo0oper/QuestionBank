@@ -159,7 +159,8 @@ public class QuestionsService {
     }
 
     public Mono<List<Question>> getAllQuestions(QuestionRequest questionRequest) {
-        return questionRepository.findQuestions().collectList();
+        return questionRepository.findQuestions().collectList()
+                .flatMap(questionList -> questionBankHelper.resolveSearch(questionList, questionRequest));
     }
 
     public Mono<Question> getQuestion(String questionId) {
