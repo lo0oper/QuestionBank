@@ -38,8 +38,9 @@ public class QuestionsController {
     }
 
     @PostMapping("/add/question")
-    public Mono<Question> addQuestion(@RequestBody QuestionRequest questionRequest) {
-        return questionService.addQuestion(questionRequest);
+    public Mono<Question> addQuestion(@RequestBody QuestionRequest questionRequest,
+                                      @RequestHeader(name = "chatGpt", required = false) String chatGpt) {
+        return questionService.addQuestion(questionRequest, chatGpt);
     }
 
     @PatchMapping("/update/question")

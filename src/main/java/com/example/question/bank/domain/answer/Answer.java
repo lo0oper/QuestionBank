@@ -1,4 +1,4 @@
-package com.example.question.bank.domain;
+package com.example.question.bank.domain.answer;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

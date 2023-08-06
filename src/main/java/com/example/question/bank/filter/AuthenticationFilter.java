@@ -31,8 +31,7 @@ public class AuthenticationFilter implements WebFilter {
         if (serverWebExchange.getRequest().getPath().toString().matches("/api/v1/auth/.*")
                 || isPreflightRequest(serverWebExchange.getRequest())
                 || serverWebExchange.getRequest().getPath().toString().equals("/all/questions")
-        || serverWebExchange.getRequest().getPath().toString().equals("/user")
-                || serverWebExchange.getRequest().getPath().toString().equals("/usertest")) {
+                || serverWebExchange.getRequest().getPath().toString().equals("/user")) {
 
             return webFilterChain.filter(serverWebExchange);
         }

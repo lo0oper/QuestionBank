@@ -1,7 +1,7 @@
 package com.example.question.bank.controller;
 
-import com.example.question.bank.domain.Answer;
-import com.example.question.bank.domain.AnswerRequest;
+import com.example.question.bank.domain.answer.Answer;
+import com.example.question.bank.domain.answer.AnswerRequest;
 import com.example.question.bank.service.QuestionsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

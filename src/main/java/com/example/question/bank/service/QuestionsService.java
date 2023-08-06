@@ -2,8 +2,8 @@ package com.example.question.bank.service;
 
 import com.example.question.bank.connector.ChatGptConnector;
 import com.example.question.bank.constants.ApplicationConstants;
-import com.example.question.bank.domain.Answer;
-import com.example.question.bank.domain.AnswerRequest;
+import com.example.question.bank.domain.answer.Answer;
+import com.example.question.bank.domain.answer.AnswerRequest;
 import com.example.question.bank.domain.chatgpt.ChatGptRequest;
 import com.example.question.bank.domain.chatgpt.Message;
 import com.example.question.bank.domain.question.Question;
@@ -48,22 +48,22 @@ public class QuestionsService {
                 .map(e -> (User) e);
     }
 
-    public Mono<Question> addQuestion(QuestionRequest questionRequest) {
+    public Mono<Question> addQuestion(QuestionRequest questionRequest, String chatGpt) {
 
         return getUser()
                 .flatMap(user -> saveQuestion(user, questionRequest))
                 .flatMap(question -> {
-                    saveChatGptAnswer(question.getQuestionId(), question.getQuestionDescription());
+                    saveChatGptAnswer(question.getQuestionId(), question.getQuestionDescription(), chatGpt);
                     return Mono.just(question);
                 });
 
     }
 
-    private void saveChatGptAnswer(String questionId, String questionDescription) {
+    private void saveChatGptAnswer(String questionId, String questionDescription, String chatGpt) {
         ChatGptRequest chatGptRequest = ChatGptRequest.builder().messages(Collections.singletonList(Message.builder().content(questionDescription).build())).build();
         Mono.just(chatGptRequest)
                 .publishOn(Schedulers.elastic())
-                .subscribe(request -> chatGptConnector.fetchChatGptResponse(chatGptRequest)
+                .subscribe(request -> chatGptConnector.fetchChatGptResponse(chatGptRequest, chatGpt)
                         .flatMap(chatGptResponse -> {
 
                             AnswerRequest answerRequest = AnswerRequest.builder()
@@ -141,6 +141,7 @@ public class QuestionsService {
                 if (removed) {
                     question.setDownvotes(question.getDownvotes() - 1);
                 }
+                questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.UPVOTE);
             } else if (StringUtils.equalsIgnoreCase(vote, ApplicationConstants.DOWNVOTE) && !question.getDownvotedUsers().contains(userId)) {
                 question.setDownvotes(question.getDownvotes() + 1);
                 question.getDownvotedUsers().add(userId);
@@ -149,6 +150,7 @@ public class QuestionsService {
                 if (removed) {
                     question.setUpvotes(question.getUpvotes() - 1);
                 }
+                questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.DOWNVOTE);
             }
         }
         return Mono.just(question);
@@ -188,6 +190,7 @@ public class QuestionsService {
             userName += !StringUtils.isEmpty(user.getLastName()) ? " " + user.getLastName() : "";
         }
 
+        questionBankHelper.updateCommentNotification(userName, answerRequest, user.getUserId());
         String finalUserName = userName;
         return questionRepository.findById(answerRequest.getQuestionId())
                 .flatMap(existingQuestion -> {

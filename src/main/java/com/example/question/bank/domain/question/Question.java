@@ -1,6 +1,6 @@
 package com.example.question.bank.domain.question;
 
-import com.example.question.bank.domain.Answer;
+import com.example.question.bank.domain.answer.Answer;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 import org.springframework.data.annotation.Id;

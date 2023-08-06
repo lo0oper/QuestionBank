@@ -1,4 +1,4 @@
-package com.example.question.bank.domain;
+package com.example.question.bank.domain.answer;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AnswerRequest {
     private String questionId;
-    private String userId;
+    private String askedUserId;
     private String answer;
     private boolean isChatGpt;
 }

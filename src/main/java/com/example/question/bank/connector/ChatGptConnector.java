@@ -2,6 +2,7 @@ package com.example.question.bank.connector;
 
 import com.example.question.bank.domain.chatgpt.ChatGptRequest;
 import com.example.question.bank.domain.chatgpt.ChatGptResponse;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
@@ -14,10 +15,12 @@ public class ChatGptConnector {
     @Autowired
     private WebClient.Builder webClientBuilder;
 
-    public Mono<ChatGptResponse> fetchChatGptResponse(ChatGptRequest chatGptRequest) {
+    public Mono<ChatGptResponse> fetchChatGptResponse(ChatGptRequest chatGptRequest, String chatGpt) {
+        final String authKey = StringUtils.isNotEmpty(chatGpt) ? chatGpt : "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";
+
         return webClientBuilder.build().post()
                 .uri("https://api.openai.com/v1/chat/completions")
-                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer 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"))
+                .headers(httpHeaders -> httpHeaders.add("Authorization", "Bearer " + authKey))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .bodyValue(chatGptRequest)
