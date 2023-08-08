@@ -16,12 +16,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -161,6 +163,9 @@ public class QuestionsService {
     }
 
     public Mono<List<Question>> getAllQuestions(QuestionRequest questionRequest) {
+        if(!CollectionUtils.isEmpty(questionRequest.getFilters())){
+            return getAllFilteredQuestions(questionRequest);
+        }
         return questionRepository.findQuestions().collectList()
                 .flatMap(questionList -> questionBankHelper.resolveSearch(questionList, questionRequest));
     }
@@ -249,19 +254,22 @@ public class QuestionsService {
     private Mono<List<Question>> filterMyQuestions(QuestionRequest questionRequest) {
         return questionRepository.findQuestions()
                 .filter(question -> question.getUserId().equalsIgnoreCase(questionRequest.getUserId()))
-                .collectList();
+                .collectList()
+                .flatMap(questionList -> questionBankHelper.resolveSearch(questionList, questionRequest));
     }
 
     private Mono<List<Question>> filterFavouriteQuestion (QuestionRequest questionRequest) {
         return userRepository.findById(questionRequest.getUserId())
                 .flatMap(user -> Flux.fromIterable(user.getFavouriteQuestions())
                         .flatMap(questionId -> questionRepository.findByQuestionId(questionId))
-                        .collectList());
+                        .collectList())
+                .flatMap(questionList -> questionBankHelper.resolveSearch(questionList, questionRequest));
     }
 
     private Mono<List<Question>> filterUpvotedQuestions(QuestionRequest questionRequest) {
         return questionRepository.findQuestions()
                 .filter(question -> question.getUpvotedUsers().contains(questionRequest.getUserId()))
-                .collectList();
+                .collectList()
+                .flatMap(questionList -> questionBankHelper.resolveSearch(questionList, questionRequest));
     }
 }

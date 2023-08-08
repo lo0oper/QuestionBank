@@ -4,6 +4,7 @@ import com.example.question.bank.constants.ApplicationConstants;
 import com.example.question.bank.domain.answer.AnswerRequest;
 import com.example.question.bank.domain.notification.Notification;
 import com.example.question.bank.domain.notification.NotificationComment;
+import com.example.question.bank.domain.notification.NotificationVote;
 import com.example.question.bank.domain.question.Question;
 import com.example.question.bank.domain.question.QuestionRequest;
 import com.example.question.bank.domain.user.User;
@@ -17,7 +18,7 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -58,21 +59,45 @@ public class QuestionBankHelper {
         notificationRepository.findById(question.getUserId())
                 .switchIfEmpty(Mono.just(Notification.builder().userId(question.getUserId()).build()))
                 .flatMap(notification -> {
+                    String questionId = question.getQuestionId();
+                    String userId = questionRequest.getUserId();
                     if (StringUtils.equalsIgnoreCase(vote, ApplicationConstants.UPVOTE)) {
-                        if (!CollectionUtils.isEmpty(notification.getDownvotedvotedUsers()) && notification.getDownvotedvotedUsers().contains(questionRequest.getUserId())) {
-                            notification.getDownvotedvotedUsers().remove(questionRequest.getUserId());
-                            notification.setDownvoteCount(notification.getDownvoteCount() - 1);
+                        Optional<NotificationVote> optionalNotificationVote = notification.getNotificationVotes()
+                                .stream()
+                                .filter(e -> StringUtils.equalsIgnoreCase(e.getQuestionId(), questionId))
+                                .findAny();
+
+                        if(optionalNotificationVote.isPresent()) {
+                            NotificationVote notificationVote = optionalNotificationVote.get();
+                            notificationVote.getDownvotedUsers().remove(userId);
+                            notificationVote.getUpvotedUsers().add(userId);
+                        } else {
+                            NotificationVote notificationVote = NotificationVote.builder()
+                                    .questionId(questionId)
+                                    .questionDescription(question.getQuestionDescription())
+                                    .upvotedUsers(Arrays.asList(userId))
+                                    .build();
+                            notification.getNotificationVotes().add(notificationVote);
                         }
-                        notification.getUpvotedUsers().add(questionRequest.getUserId());
-                        notification.setUpvoteCount(notification.getUpvoteCount() + 1);
                         notificationRepository.save(notification).subscribe();
                     } else {
-                        if (!CollectionUtils.isEmpty(notification.getUpvotedUsers()) && notification.getUpvotedUsers().contains(questionRequest.getUserId())) {
-                            notification.getUpvotedUsers().remove(questionRequest.getUserId());
-                            notification.setUpvoteCount(notification.getUpvoteCount() - 1);
+                        Optional<NotificationVote> optionalNotificationVote = notification.getNotificationVotes()
+                                .stream()
+                                .filter(e -> StringUtils.equalsIgnoreCase(e.getQuestionId(), questionId))
+                                .findAny();
+
+                        if(optionalNotificationVote.isPresent()) {
+                            NotificationVote notificationVote = optionalNotificationVote.get();
+                            notificationVote.getDownvotedUsers().add(userId);
+                            notificationVote.getUpvotedUsers().remove(userId);
+                        } else {
+                            NotificationVote notificationVote = NotificationVote.builder()
+                                    .questionId(questionId)
+                                    .questionDescription(question.getQuestionDescription())
+                                    .downvotedUsers(Arrays.asList(userId))
+                                    .build();
+                            notification.getNotificationVotes().add(notificationVote);
                         }
-                        notification.getDownvotedvotedUsers().add(questionRequest.getUserId());
-                        notification.setDownvoteCount(notification.getUpvoteCount() + 1);
                         notificationRepository.save(notification).subscribe();
                     }
                     return null;
