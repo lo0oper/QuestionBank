@@ -143,7 +143,10 @@ public class QuestionsService {
                 if (removed) {
                     question.setDownvotes(question.getDownvotes() - 1);
                 }
-                questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.UPVOTE);
+                if(!StringUtils.equalsIgnoreCase(questionRequest.getUserId(), question.getUserId())) {
+                    questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.UPVOTE);
+                }
+
             } else if (StringUtils.equalsIgnoreCase(vote, ApplicationConstants.DOWNVOTE) && !question.getDownvotedUsers().contains(userId)) {
                 question.setDownvotes(question.getDownvotes() + 1);
                 question.getDownvotedUsers().add(userId);
@@ -152,7 +155,9 @@ public class QuestionsService {
                 if (removed) {
                     question.setUpvotes(question.getUpvotes() - 1);
                 }
-                questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.DOWNVOTE);
+                if(!StringUtils.equalsIgnoreCase(questionRequest.getUserId(), question.getUserId())) {
+                    questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.DOWNVOTE);
+                }
             }
         }
         return Mono.just(question);
@@ -171,7 +176,8 @@ public class QuestionsService {
     }
 
     public Mono<Question> getQuestion(String questionId) {
-        return questionRepository.findById(questionId);
+        return questionRepository.findById(questionId)
+                .switchIfEmpty(Mono.error(new Exception("No question found with given questionId")));
     }
 
     public Mono<Answer> addAnswer(AnswerRequest answerRequest) {
