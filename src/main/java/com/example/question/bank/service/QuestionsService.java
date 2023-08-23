@@ -91,6 +91,7 @@ public class QuestionsService {
                         .userName(userName)
                         .questionTitle(questionRequest.getQuestionTitle())
                         .questionDescription(questionRequest.getQuestionDescription())
+                        .tags(questionRequest.getTagList())
                         .build();
 
         return questionRepository.save(question);
@@ -122,9 +123,11 @@ public class QuestionsService {
     }
 
     private Mono<Question> saveQuestionContent(QuestionRequest questionRequest, Question question) {
-        if (!StringUtils.isEmpty(questionRequest.getQuestionTitle()) && !StringUtils.isEmpty(questionRequest.getQuestionDescription())) {
+        if (!StringUtils.isEmpty(questionRequest.getQuestionTitle()) && !StringUtils.isEmpty(questionRequest.getQuestionDescription())
+                && !CollectionUtils.isEmpty(questionRequest.getTagList())) {
             question.setQuestionTitle(questionRequest.getQuestionTitle());
             question.setQuestionDescription(questionRequest.getQuestionDescription());
+            question.setTags(questionRequest.getTagList());
         }
         return Mono.just(question);
     }
@@ -143,7 +146,7 @@ public class QuestionsService {
                 if (removed) {
                     question.setDownvotes(question.getDownvotes() - 1);
                 }
-                if(!StringUtils.equalsIgnoreCase(questionRequest.getUserId(), question.getUserId())) {
+                if (!StringUtils.equalsIgnoreCase(questionRequest.getUserId(), question.getUserId())) {
                     questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.UPVOTE);
                 }
 
@@ -155,7 +158,7 @@ public class QuestionsService {
                 if (removed) {
                     question.setUpvotes(question.getUpvotes() - 1);
                 }
-                if(!StringUtils.equalsIgnoreCase(questionRequest.getUserId(), question.getUserId())) {
+                if (!StringUtils.equalsIgnoreCase(questionRequest.getUserId(), question.getUserId())) {
                     questionBankHelper.updateVoteNotification(questionRequest, question, ApplicationConstants.DOWNVOTE);
                 }
             }
@@ -168,7 +171,7 @@ public class QuestionsService {
     }
 
     public Mono<List<Question>> getAllQuestions(QuestionRequest questionRequest) {
-        if(!CollectionUtils.isEmpty(questionRequest.getFilters())){
+        if (!CollectionUtils.isEmpty(questionRequest.getFilters())) {
             return getAllFilteredQuestions(questionRequest);
         }
         return questionRepository.findQuestions().collectList()
@@ -248,9 +251,9 @@ public class QuestionsService {
     }
 
     public Mono<List<Question>> getAllFilteredQuestions(QuestionRequest questionRequest) {
-        if(questionRequest.getFilters().contains("Favourite questions")){
+        if (questionRequest.getFilters().contains("Favourite questions")) {
             return filterFavouriteQuestion(questionRequest);
-        } else if(questionRequest.getFilters().contains("My questions")) {
+        } else if (questionRequest.getFilters().contains("My questions")) {
             return filterMyQuestions(questionRequest);
         } else {
             return filterUpvotedQuestions(questionRequest);
@@ -264,7 +267,7 @@ public class QuestionsService {
                 .flatMap(questionList -> questionBankHelper.resolveSearch(questionList, questionRequest));
     }
 
-    private Mono<List<Question>> filterFavouriteQuestion (QuestionRequest questionRequest) {
+    private Mono<List<Question>> filterFavouriteQuestion(QuestionRequest questionRequest) {
         return userRepository.findById(questionRequest.getUserId())
                 .flatMap(user -> Flux.fromIterable(user.getFavouriteQuestions())
                         .flatMap(questionId -> questionRepository.findByQuestionId(questionId))

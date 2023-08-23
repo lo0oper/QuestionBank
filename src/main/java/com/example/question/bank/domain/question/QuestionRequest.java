@@ -21,4 +21,5 @@ public class QuestionRequest {
     private String searchTerm;
     private boolean favourite;
     private List<String> filters;
+    private List<String> tagList;
 }
