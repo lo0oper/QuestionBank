@@ -3,8 +3,7 @@
 
 
 # Use a base image that includes Java and build tools
-FROM openjdk:11-jdk
-
+FROM maven:3.8.3-openjdk-11
 # Set the working directory inside the container
 WORKDIR /app
 
