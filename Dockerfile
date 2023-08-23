@@ -1,5 +1,9 @@
-FROM openjdk:11-jre-slim
-ARG JAR_FILE=target/*.jar
-COPY ./target/question.bank-0.0.1-SNAPSHOT.jar app.jar
+FROM openjdk:11
+
+ARG JAR_FILE=target/question.bank*.jar
+
+ADD ${JAR_FILE} question.bank.jar
+
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+ENTRYPOINT ["java","-jar","/question.bank.jar", "/app/question.bank.jar"]
