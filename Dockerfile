@@ -12,7 +12,7 @@ WORKDIR /app
 COPY . /app
 
 # Compile your Java code and create the JAR file
-RUN javac -d . Application.java
+RUN javac -d . /src/main/java/com/example/question/bank/Application.java
 RUN jar -cvf Application.jar *
 
 EXPOSE 8080
