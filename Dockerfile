@@ -1,9 +1,8 @@
 FROM openjdk:11
 
-ARG JAR_FILE=target/question.bank*.jar
-
-ADD ${JAR_FILE} question.bank.jar
+# Copy the JAR file into the image
+COPY target/question.bank*.jar question.bank.jar
 
 EXPOSE 8080
 
-ENTRYPOINT ["java","-jar","/question.bank.jar", "/app/question.bank.jar"]
+ENTRYPOINT ["java", "-jar", "/question.bank.jar"]
