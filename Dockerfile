@@ -5,7 +5,7 @@ FROM openjdk:11-jre-slim
 WORKDIR /app
 
 # Copy the compiled Spring Boot JAR into the container
-COPY target/quesion-bank.jar app.jar
+COPY target/question.bank-0.0.1-SNAPSHOT.jar app.jar
 
 # Expose the port your Spring Boot app listens on (assuming it's 8080)
 EXPOSE 8080
