@@ -11,7 +11,9 @@ WORKDIR /app
 COPY . /app
 
 # Compile your Java code and create the JAR file
-RUN mvn package
+RUN pwd
+RUN cat pom.xml
+
 RUN mvn clean install
 
 RUN javac -d . ./src/main/java/com/example/question/bank/Application.java
