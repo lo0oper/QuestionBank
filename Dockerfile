@@ -1,25 +1,23 @@
+# Builder stage
+FROM maven:3.8.4-openjdk-11 AS builder
 
-
-
-
-# Use a base image that includes Java and build tools
-FROM maven:3.8.3-openjdk-11
-# Set the working directory inside the container
+# Set the working directory
 WORKDIR /app
 
-# Copy your Java application files to the container
-COPY . /app
+# Copy the pom.xml for dependency resolution
+COPY pom.xml .
 
-# Compile your Java code and create the JAR file
-RUN pwd
-RUN cat pom.xml
-
+# Build the project and download dependencies
 RUN mvn clean install
 
-RUN javac -d . ./src/main/java/com/example/question/bank/Application.java
-RUN jar -cvf Application.jar *
+# Final stage
+FROM openjdk:11-jre-slim
 
-EXPOSE 8080
-# Command to run the application (optional)
-CMD ["java", "-jar", "Application.jar"]
+# Set the working directory
+WORKDIR /app
 
+# Copy the compiled JAR file from the builder stage
+COPY --from=builder /app/target/question.bank-0.0.1-SNAPSHOT.jar .
+
+# Run the Spring Boot application
+CMD ["java", "-jar", "question.bank-0.0.1-SNAPSHOT.jar"]
