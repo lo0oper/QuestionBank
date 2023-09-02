@@ -10,6 +10,8 @@ COPY . .
 # Run the 'mvn clean install' command when the container starts
 RUN mvn clean install
 
+RUN ls
+
 ADD target/Question-Bank.jar Question-Bank.jar
 ENTRYPOINT ["java", "-jar","Question-Bank.jar"]
 EXPOSE 8080
