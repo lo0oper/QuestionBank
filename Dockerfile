@@ -17,4 +17,4 @@ RUN cp target/Question-Bank.jar ./Question-Bank.jar
 EXPOSE 8080
 
 # Define the command to run your application
-CMD ["java", "-jar", "Question-Bank.jar"]
+ENTRYPOINT ["java", "-jar", "Question-Bank.jar"]
