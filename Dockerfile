@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Run the 'mvn clean install' command when the container starts
-CMD ["mvn", "clean", "install"]
+RUN mvn clean install
 
 ADD target/Question-Bank.jar Question-Bank.jar
 ENTRYPOINT ["java", "-jar","Question-Bank.jar"]
