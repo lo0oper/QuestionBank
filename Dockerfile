@@ -7,14 +7,14 @@ WORKDIR /app
 # Copy the contents of your Maven project to the container
 COPY . .
 
-
-# Run the 'mvn clean install' command when the container starts
+# Build your Maven project inside the container
 RUN mvn clean install
 
-RUN ls
-RUN pwd
-RUN ls ./target
+# Copy the JAR file built by Maven to the desired location
+RUN cp target/Question-Bank.jar ./Question-Bank.jar
 
-#COPY ./target/test-classes Question-Bank.jar
-ENTRYPOINT ["java", "-jar","./target/Question-Bank.jar"]
+# Expose the port your application will listen on (assuming it's 8080)
 EXPOSE 8080
+
+# Define the command to run your application
+CMD ["java", "-jar", "Question-Bank.jar"]
